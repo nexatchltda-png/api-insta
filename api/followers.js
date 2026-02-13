@@ -32,9 +32,9 @@ export default async function handler(req, res) {
     const response = await axios.post(
       `https://api.apify.com/v2/acts/apify~instagram-api-scraper/run-sync-get-dataset-items?token=${process.env.APIFY_API_KEY}`,
       {
-        directUrls: [`https://www.instagram.com/${username}/followers/`],
-        resultsType: "followers", // 🔥 aqui muda
-        resultsLimit: 30, // limite controlado para custo
+        directUrls: [`https://www.instagram.com/${username}/`],
+        resultsType: "details",
+        resultsLimit: 1,
         proxyConfiguration: {
           useApifyProxy: true,
         },
