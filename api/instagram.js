@@ -1,6 +1,17 @@
 import axios from "axios";
 
 export default async function handler(req, res) {
+
+    // 🔥 HEADERS CORS MANUAL (garante funcionamento)
+  res.setHeader("Access-Control-Allow-Origin", "https://www.instalker.store");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Responde preflight request
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  
   // Permitir apenas GET
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Método não permitido" });
@@ -86,3 +97,4 @@ export default async function handler(req, res) {
     });
   }
 }
+
