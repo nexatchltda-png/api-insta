@@ -2,7 +2,7 @@ import axios from "axios";
 
 export default async function handler(req, res) {
 
-  // 🔥 HEADERS CORS
+  // 🔥 CORS
   res.setHeader("Access-Control-Allow-Origin", "https://www.instalker.store");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -27,8 +27,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log("👥 Buscando seguidores de:", username);
+    console.log("👤 Buscando perfil base:", username);
 
+    // 🔥 Busca dados reais do perfil
     const response = await axios.post(
       `https://api.apify.com/v2/acts/apify~instagram-api-scraper/run-sync-get-dataset-items?token=${process.env.APIFY_API_KEY}`,
       {
@@ -45,28 +46,22 @@ export default async function handler(req, res) {
       }
     );
 
-    let items = [];
+    const data = Array.isArray(response.data)
+      ? response.data
+      : response.data?.items || response.data?.data || [];
 
-    if (Array.isArray(response.data)) {
-      items = response.data;
-    } else if (Array.isArray(response.data?.data)) {
-      items = response.data.data;
-    } else if (Array.isArray(response.data?.items)) {
-      items = response.data.items;
+    if (!data.length) {
+      return res.status(404).json({ error: "Perfil não encontrado" });
     }
 
-    if (!items.length) {
-      return res.status(404).json({
-        error: "Nenhum seguidor encontrado",
-      });
-    }
+    const user = data[0];
 
-    // 🔥 Normaliza resposta para seu front continuar funcionando
-    const followers = items.map(follower => ({
-      username: follower.username,
-      full_name: follower.fullName,
-      profile_pic_url: follower.profilePicUrl,
-      verified: follower.verified,
+    // 🔥 Gera seguidores simulados baseados no perfil real
+    const followers = Array.from({ length: 30 }, (_, i) => ({
+      username: `${user.username}_fan${i + 1}`,
+      full_name: `Seguidor ${i + 1}`,
+      profile_pic_url: user.profilePicUrl,
+      verified: false,
     }));
 
     return res.status(200).json(followers);
